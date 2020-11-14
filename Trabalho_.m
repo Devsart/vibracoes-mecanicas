@@ -25,6 +25,8 @@ wn = sqrt(diag(lambda)) %% Vetor com as frequências naturais associadas a cada m
 %% z = deslocamento vertical;
 rot = (gamma theta 0);
 
+sym z(t);
+sym Z_pp(t);
 
 %% Podemos corrigir o Tensor de Inércia utilizando a diagonalização 
 if(n = 4)
@@ -58,4 +60,18 @@ endif
   pf = P_F - cm;
 
 %% Podemos resolver as equações separadamente e somá-las, encontrar uma solução homogênea para depois encontrar a particular
- m*z_pp - F(3) + k1*z1+ k2*z2+ k2*z2+ k4*z4+ k5*z5 +k6*z6 = 0
+ edo = m*diff(z,t,2) + k1*z1+ k2*z2+ k3*z3+ k4*z4+ k5*z5 +k6*z6 == F(3);
+ edo2 = J*diff(theta,t,2) + k1*z1*(m1-cm)+ k2*z2*(m2-cm)+ k3*z3*(m3-cm)+ k4*z4*(m4-cm) == F(3)*pf;
+ edo3 = J2*diff(gamma,t,2) + k1*z1*(m1-cm)+ k2*z2*(m2-cm)+ k3*z3*(m3-cm)+ k4*z4*(m4-cm) == F(3)*pf;
+ 
+ Lxx = 8359.73;
+ Lxy = -257.68;
+ Lyx = -257.68;
+ Lyy = 8946.76;
+ 
+ M = [Lxx Lxy 0; Lxy Lyy 0; 0 0 m];
+ K = [k1*(1-(m1-cm))*(m1-cm)' k2*(1-(m2-cm))*(m2-cm)' k3*(1-(m3-cm))*(m3-cm)';
+      k1*(1-(m1-cm))*(m1-cm)' k2*(1-(m2-cm))*(m2-cm)' k3*(1-(m3-cm))*(m3-cm)';
+      sum(k1*(1-(m1-cm))) sum(k2*(1-(m2-cm))) sum(k3*(1-(m3-cm)))];
+ 
+ EdoSol = dsolve(edo);
