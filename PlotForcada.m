@@ -1,10 +1,10 @@
 t=0:.01:20;
 global omegan omegaf mo;
-omegan = 6;
-omegaf=17;
-theta0= 0.7;
-omega0=0.5;
-mo=10;
+omegan = 1.6*64824;
+omegaf=34*pi;
+theta0= 0.1;
+omega0= 0.1;
+mo=25627/96;
 
 function dy=forcedundampeddot(t,x)
   global omegan omegaf mo;

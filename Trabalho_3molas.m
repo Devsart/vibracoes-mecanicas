@@ -29,11 +29,13 @@ pm1 = [3 1.76 0];
 pm2 = [0 0 0];
 pm3 = [0 3 0];
 
-%% Podemos resolver as equações separadamente e somá-las, encontrar uma solução homogênea para depois encontrar a particular. Modelo W2BV
-k1 = 1244000;
-k2 = 1244000;
-k3 = 1244000;
-K = [-3.0976*k2+1.5376*k3, -3.52*k2-2.48*k3, 1.76*k2+1.24*k3; -3.52*k2-2.48*k3, -4*k2-4*k3+k1, 2*k2+2*k3+k1; 1.76*k2+1.24*k3, 2*k2+2*k3+k1, k1+k2+k3]
+%% Podemos resolver as equações separadamente e somá-las, encontrar uma solução homogênea para depois encontrar a particular. Modelo W2BV-484.
+k1 = 1958076;
+k2 = 1958076;
+k3 = 1958076;
+K = [3.0976*k2+1.5376*k3, 3.52*k2-2.48*k3, -1.76*k2+1.24*k3;...
+     3.52*k2-2.48*k3, 4*k2+4*k3+k1, -2*k2-2*k3+k1;...
+     -1.76*k2+1.24*k3, -2*k2-2*k3+k1, k1+k2+k3];
 
  
  Lxx = 8359.73;
@@ -52,11 +54,11 @@ K = [-3.0976*k2+1.5376*k3, -3.52*k2-2.48*k3, 1.76*k2+1.24*k3; -3.52*k2-2.48*k3, 
 Minv = pinv(M); %%inverso da matriz de massa;
 A = Minv*K;
 [U, lambda] = eig(A) %% U é a matriz de autovetores e lambda é a diagonal com os autovalores;
-wn = sqrt(abs(diag(lambda))) %% Vetor com as frequências naturais associadas a cada mola, em coluna;
-Mmodal = round(U'*M*U)
+wn = sqrt(diag(lambda)) %% Vetor com as frequências naturais associadas a cada mola, em coluna;
+Mmodal = (U'*M*U)
 Mmlin = diag(Mmodal)./diag(Mmodal);
 Kmodal = (U'*K*U)
-Kmlin = diag(Kmodal)./diag(Mmodal)
+Kmlin = diag(Kmodal)./diag(Mmodal);
 Wnlin = sqrt(abs(Kmlin));
 Fmodal = U'*F'
 Flin = Fmodal./diag(Mmodal);
@@ -70,25 +72,26 @@ for i = 1:3
   mm = Mmlin(i);
   wf = 34*pi;
   
-  x0 = 56280/Kmodal(i,i);
+  x0 = 56280/Kmodal(i,i); %% ponto de equilibrio
   x0ponto = 0.1;
   f_0 = Fo/mm; 
   
   for j = 1:101
     t(j) = 5*(j-1)./100;
     w(j) = 200*(j-1)./100;
-    x(j) = x0ponto*sin(wnm*t(j))/wnm + (x0 - f_0/(wnm.^2 - wf.^2))*cos(wnm*t(j)) + (f_0/(wnm.^2-wf.^2))*cos(wf*t(j));
+    x(j) = x0ponto*sin(wnm*t(j))/wnm + (x0 - f_0/(wnm.^2 - wf.^2))*cos(wnm*t(j)) + (f_0/(wnm.^2-wf.^2))*cos(wf*t(j)); %% eq de movimento p forcamento sem amortecimento
     T(j) = abs(Kmodal(i,i))./((-w(j).^2).*Mmodal(i,i)+abs(Kmodal(i,i)));
     XF(j) = 1./((-w(j).^2).*Mmodal(i,i)+abs(Kmodal(i,i)));
   endfor
+  G = 1 ./ (((1-(wf./wnm).^2).^2).^(1/2))
   subplot(2,3,i);
   plot(t,x);
   xlabel ('t');
-  ylabel ('x(t)');
+  ylabel ('x(t)'); %% posicao
   subplot(2,3,3+i);
-  plot(w,XF);
+  plot(w,T);
   xlabel ('w');
-  ylabel ('X/F(w)');
+  ylabel ('T(w)'); %% Transmitância
 
 endfor
   
